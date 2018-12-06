@@ -1,80 +1,116 @@
-
 class Heap:
+    def __init__(self):
+        self.heap_array =[]
 
- def __init__(self , items =[]):
- 	self.heap_array = []
-
-#Recieve data, will be appended to the heap and then percolate it up to its proper position
-
-def extract_min(self):
-	# the case where there are 2 values in the heap you first swap the 2 values 
-	if len(self.heap_array) > 2:
-		self.heap_array[1] , self.heap_array[len(self.heap_array) - 1] = self.heap[len(self.heap_array) - 1] , self.heap_array[1]
-		min = self.heap.extract_min()
-
-	#only 1 value in the heap 
-	elif len(self.heap_array) == 2:
-		min = self.heap.extract_min()
-
-	# extracting a value from an empty heap 
-	else:
-		min = False 
-
-	return min 
-
-#Assuming the value is inserted at the bottom of the heap/ end of the list 
-#want to percolate it up to the proper position
-def percolate_up(self, index):
-
-	parent = index //2   #finding the parent of the index that will be percolating up 
-
-	#check if the index that has just passed in is 1 
-	#passed index is 1 -- > no need to percolate up 
-	if index <= 1: 
-		return 
-	# if the value passed in is less than it's parent then the two will be swaped 
-	elif self.heap_array[index] < self.heap[parent]:
-		self.heap_array[index] , self.heap_array[parent] = self.heap[parent] , self.heap_array[index]
-		self._percolate_up(parent)
-
-def percolate_down(self, index):
-
-	left = index * 2 
-	right = index * 2 + 1
-
-	smallest = index 
-	#compare index value to the left child and right child to determine wich one is the smallest 
-	if (len(self.heap_array) < left) and (self.heap_array[smallest] > self.heap[left]):
-		smallest = left
-	if len(self.heap_array) < right and self.heap_array[smallest] > self.heap[left]:
-		smallest = right
-
-	if largest != index: 
-		self.heap_array[index] , self.heap_array[smallest] = self.heap[smallest] , self.heap_array[index]
-		self._percolate_down(smallest)
-
-def insert(self, k):
-	self.heap_array.append(k)
-	self._percolate_up(len(self.heap) - 1)
+    ''' 
+    Method that simply inserts a value to the Heap utilizing the percolate_up
+    method to traverse the heap to insert to the appropriate position. 
+    '''      
+    def insert (self,k):
+        self.heap_array.append(k)
+        self.percolate_up(len(self.heap_array) - 1)
 
 
-def is_empty(self):
-	return len(self.heap_array) == 0
+    ''' 
+     Method that removes the last value from the heap in support of 
+     another method to swap (percolate_down) and position the values 
+     where they should be. 
+    '''   
+    def extract_min(self):
+        if self.is_empty():
+            return None
+
+        min_elem = self.heap_array[0]   #last value of the heap would be in index 0 
+        min = self.heap_array.pop()
+        
+        if len(self.heap_array)>0:
+            self.heap_array[0] = min
+            self.percolate_down(0)
+        return min_elem
+    
+    def is_empty(self):
+        return len(self.heap_array)==0
+    
+        
+    ''' 
+    Auxiliary methods to maintain the properties of a min heap 
+    	 - percolate_up to insert a new value in the heap
+    	 - percoulate_down to remove a value from the heap 
+	'''
+    def percolate_up(self, i):
+        while i > 0:
+
+            parent_i = (i - 1) // 2	 # computes the parent node's index
+
+            #checks the value of the index and its's parent to see if there is no violation 
+            if self.heap_array[i] >= self.heap_array[parent_i]:
+                return
+            else:
+            	#swaps the two values 
+            	self.heap_array[i] , self.heap_array[parent_i] = self.heap_array[parent_i] , self.heap_array[i]      
+            	#continue to loop from the parent node
+            	i = parent_i           
+    ''' 
+	 Method that traverses until violation is found and then it fixes it 
+	'''
+    def percolate_down(self, node_i):
+        child_index = 2 * node_i + 1
+        value = self.heap_array[node_i]
+
+        while child_index < len(self.heap_array):
+            # Find the min among the node and all the node's children
+            min_value = value
+            min_i = -1
+            i = 0
+            while i < 2 and i + child_index < len(self.heap_array):
+                if self.heap_array[i + child_index] < min_value:
+                    min_value = self.heap_array[i + child_index]
+                    min_i = i + child_index
+                i = i + 1
+
+            # check for a violation of the min heap property
+            if min_value == value:
+                return
+            else:
+            	self.heap_array[node_i] , self.heap_array[min_i] = self.heap_array[min_i] , self.heap_array[node_i]
+                #continue loop from the min index node
+            node_i = min_i
+            child_index = 2 * node_i + 1
+
+    '''
+    Heap sort implementation 
+    '''            
+    def heap_sort(self):
+        heap_sorted = Heap()
+        while len(self.heap_array)>0:
+            min_dummy = self.extract_min()
+            heap_sorted.insert(min_dummy)
+        return heap_sorted
+    
+
+'''
+Creation of the heap along with reading a txt file to obtain numbers 
+to work with the different operations 
+'''
+unsorted_heap = Heap()
+
+g = open("numbers.txt")
+num_list = g.readlines()
 
 
+#reading the list to the Heap 
+for ln in num_list:
+    ln = int(ln.replace('\n',''))	#numbers will be sepearated by a space
+    unsorted_heap.insert(ln)		# insert the numbers(ln) into the heap 
 
+print("Unsorted Heap ")
+print(unsorted_heap.heap_array)
 
-m = Heap([95,3,21])
-m.insert(10)
-print(str(m.heap_array[0:len(m.heap_array)])) 
-print(str(m.extract_min))
+unsorted_heap = unsorted_heap.heap_sort()
 
-
-
-
-
-
-
+print("Heap Sort: ")
+print(unsorted_heap.heap_array)
+ 
 
 
 
